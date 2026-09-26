@@ -1,3 +1,5 @@
+using CommonContracts.Shared;
+
 namespace CommonContracts.Movements
 {
     public sealed record Movement
@@ -6,9 +8,9 @@ namespace CommonContracts.Movements
         public required string MovementNumber { get; init; }
         public long? JobID { get; init; }
         public required DateTimeOffset Date { get; init; }
-        public required MovementStatusContract Status { get; init; }
-        public required MovementLocation Origin { get; init; }
-        public required MovementLocation Destination { get; init; }
+        public required LookupValue Status { get; init; }
+        public required LocationReference Origin { get; init; }
+        public required LocationReference Destination { get; init; }
         public string? PermitDetail { get; init; }
         public string? Description { get; init; }
         public string? Notes { get; init; }
@@ -31,9 +33,9 @@ namespace CommonContracts.Movements
         public required byte PoliceEscorts { get; init; }
         public required byte HighLoadEscorts { get; init; }
         public required bool Active { get; init; }
-        public required MovementAuditUser CreatedBy { get; init; }
+        public required AuditUser CreatedBy { get; init; }
         public required DateTimeOffset CreatedDate { get; init; }
-        public MovementAuditUser? ModifiedBy { get; init; }
+        public AuditUser? ModifiedBy { get; init; }
         public DateTimeOffset? ModifiedDate { get; init; }
         public required byte[] RowVersion { get; init; }
     }

@@ -18,21 +18,49 @@ namespace CommonContracts.Tests.Shared
         }
 
         [Fact]
-        public void PagedResultOfMovementSummary_SerialisesWithTheSamePropertyNamesAsMovementSearchResponse()
+        public void PagedResultOfMovementSummary_SerialisesWithTheMovementSearchResponsePropertyNames()
         {
             // Arrange
             var pagedResult = new PagedResult<MovementSummary> { PageNumber = 2, PageSize = 25, TotalCount = 60 };
-#pragma warning disable CS0618
-            var legacyResponse = new MovementSearchResponse { PageNumber = 2, PageSize = 25, TotalCount = 60, TotalPages = 3 };
-#pragma warning restore CS0618
 
             // Act
-            var sharedNames = PropertyNames(pagedResult);
-            var legacyNames = PropertyNames(legacyResponse);
+            var names = PropertyNames(pagedResult);
 
             // Assert
-            sharedNames.Should().Equal(legacyNames);
-            sharedNames.Should().Contain("totalPages");
+            names.Should().Equal("items", "pageNumber", "pageSize", "totalCount", "totalPages");
+        }
+
+        [Fact]
+        public void MovementSummary_SerialisesStatusAsIdAndName_AndLocationsWithADisplayName()
+        {
+            // Arrange
+            var location = new LocationReference { ID = 10, Name = "Bellbowrie", DisplayName = "BELLBOWRIE, 4070", CountryCode = "AUS" };
+            var summary = new MovementSummary
+            {
+                ID = 1,
+                MovementNumber = "MOV0000001",
+                Date = DateTimeOffset.UnixEpoch,
+                Status = new LookupValue { ID = 2, Name = "In Transit" },
+                Origin = location,
+                Destination = location,
+                InternalPilotEscorts = 0,
+                ExternalPilotEscorts = 0,
+                PoliceEscorts = 0,
+                HighLoadEscorts = 0,
+                Active = true,
+                CreatedBy = new AuditUser { ID = 1, DisplayName = "Test User" },
+                CreatedDate = DateTimeOffset.UnixEpoch,
+                RowVersion = [1]
+            };
+
+            // Act
+            using var document = JsonDocument.Parse(JsonSerializer.Serialize(summary, WebOptions));
+            var root = document.RootElement;
+
+            // Assert
+            root.GetProperty("status").EnumerateObject().Select(p => p.Name).Should().Equal("id", "name");
+            root.GetProperty("origin").GetProperty("displayName").GetString().Should().Be("BELLBOWRIE, 4070");
+            root.GetProperty("createdBy").GetProperty("displayName").GetString().Should().Be("Test User");
         }
 
         [Fact]

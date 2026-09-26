@@ -1,4 +1,6 @@
+using System.Runtime.CompilerServices;
 using System.Text.Json;
+using System.Xml.Linq;
 using CommonContracts.Movements;
 using CommonContracts.Shared;
 using FluentAssertions;
@@ -86,6 +88,25 @@ namespace CommonContracts.Tests.Shared
 
             // Assert
             references.Should().OnlyContain(name => name.StartsWith("System", StringComparison.Ordinal) || name == "netstandard" || name == "mscorlib");
+        }
+
+        private static string ContractsProjectPath([CallerFilePath] string thisFile = "")
+            => Path.GetFullPath(Path.Combine(Path.GetDirectoryName(thisFile)!, "..", "..", "CommonContracts", "CommonContracts.csproj"));
+
+        [Fact]
+        public void ContractsProject_DeclaresNoPackageOrProjectReferences()
+        {
+            // Arrange
+            var project = XDocument.Load(ContractsProjectPath());
+
+            // Act
+            var references = project.Descendants()
+                .Where(e => e.Name.LocalName is "PackageReference" or "ProjectReference" or "Reference" or "FrameworkReference")
+                .Select(e => (string?)e.Attribute("Include"))
+                .ToList();
+
+            // Assert
+            references.Should().BeEmpty();
         }
     }
 }

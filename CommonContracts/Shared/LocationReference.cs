@@ -1,10 +1,10 @@
-namespace CommonContracts.Movements
+namespace CommonContracts.Shared
 {
-    [Obsolete("Replaced by CommonContracts.Shared.LocationReference. Removed in EA-52 once the Enterprise API maps movements onto the shared shapes.")]
-    public sealed record MovementLocation
+    public sealed record LocationReference
     {
         public required long ID { get; init; }
         public required string Name { get; init; }
+        public required string DisplayName { get; init; }
         public string? Suburb { get; init; }
         public string? StateCode { get; init; }
         public required string CountryCode { get; init; }
